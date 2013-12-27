@@ -15,13 +15,15 @@ import javacard.security.Signature;
 public class YkneoCurves extends Applet {
 	public static final short _0 = 0;
 
-	KeyPair brainpool256r1;
+	KeyPair brainpoolp256r1;
 	KeyPair secp256r1;
+	KeyPair brainpoolp320r1;
 	Signature signature;
 
 	public YkneoCurves() {
-		brainpool256r1 = BrainpoolP256r1.newKeyPair();
+		brainpoolp256r1 = BrainpoolP256r1.newKeyPair();
 		secp256r1 = SecP256r1.newKeyPair();
+		brainpoolp320r1 = BrainpoolP320r1.newKeyPair();
 		signature = Signature.getInstance(Signature.ALG_ECDSA_SHA, false);
 	}
 
@@ -41,13 +43,13 @@ public class YkneoCurves extends Applet {
 
 		switch(ins) {
 		case 0x01: {
-			brainpool256r1.genKeyPair();
-			ECPublicKey pubKey = (ECPublicKey) brainpool256r1.getPublic();
+			brainpoolp256r1.genKeyPair();
+			ECPublicKey pubKey = (ECPublicKey) brainpoolp256r1.getPublic();
 			sendlen = pubKey.getW(buf, _0);
 			break;
 		}
 		case 0x02: {
-			signature.init(brainpool256r1.getPrivate(), Signature.MODE_SIGN);
+			signature.init(brainpoolp256r1.getPrivate(), Signature.MODE_SIGN);
 			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, (short) 0);
 			break;
 		}
@@ -62,6 +64,19 @@ public class YkneoCurves extends Applet {
 			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, (short) 0);
 			break;
 		}
+		case 0x21: {
+			brainpoolp320r1.genKeyPair();
+			ECPublicKey pubKey = (ECPublicKey) brainpoolp320r1.getPublic();
+			sendlen = pubKey.getW(buf, _0);
+			break;
+		}
+		case 0x22: {
+			signature.init(brainpoolp320r1.getPrivate(), Signature.MODE_SIGN);
+			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, (short) 0);
+			break;
+		}
+		default:
+			ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
 		}
 		if(sendlen > 0) {
 			apdu.setOutgoingAndSend(_0, sendlen);
