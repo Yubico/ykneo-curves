@@ -18,12 +18,13 @@ public class YkneoCurves extends Applet {
 	public static final byte GENERATE = 1;
 	public static final byte SIGN = 2;
 
-	KeyPair brainpoolp256r1;
-	KeyPair secp256r1;
-	KeyPair brainpoolp320r1;
-	KeyPair brainpoolp256t1;
-	KeyPair secp256k1;
-	Signature signature;
+	private KeyPair brainpoolp256r1;
+	private KeyPair secp256r1;
+	private KeyPair brainpoolp320r1;
+	private KeyPair brainpoolp256t1;
+	private KeyPair secp256k1;
+	
+	private Signature signature;
 
 	public YkneoCurves() {
 		brainpoolp256r1 = BrainpoolP256r1.newKeyPair();
