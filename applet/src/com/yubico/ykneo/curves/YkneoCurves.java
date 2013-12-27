@@ -14,11 +14,15 @@ import javacard.security.Signature;
 
 public class YkneoCurves extends Applet {
 	public static final short _0 = 0;
+	
+	public static final byte GENERATE = 1;
+	public static final byte SIGN = 2;
 
 	KeyPair brainpoolp256r1;
 	KeyPair secp256r1;
 	KeyPair brainpoolp320r1;
 	KeyPair brainpoolp256t1;
+	KeyPair secp256k1;
 	Signature signature;
 
 	public YkneoCurves() {
@@ -26,6 +30,7 @@ public class YkneoCurves extends Applet {
 		secp256r1 = SecP256r1.newKeyPair();
 		brainpoolp320r1 = BrainpoolP320r1.newKeyPair();
 		brainpoolp256t1 = BrainpoolP256t1.newKeyPair();
+		secp256k1 = SecP256k1.newKeyPair();
 		
 		signature = Signature.getInstance(Signature.ALG_ECDSA_SHA, false);
 	}
@@ -43,54 +48,47 @@ public class YkneoCurves extends Applet {
 		short recvlen = apdu.setIncomingAndReceive();
 		byte[] buf = apdu.getBuffer();
 		byte ins = buf[ISO7816.OFFSET_INS];
+		
+		KeyPair pair = null;
+		byte operation = 0;
+		if((ins & 0x0f) == 0x01) {
+			operation = GENERATE;
+		} else if((ins & 0x0f) == 0x02) {
+			operation = SIGN;
+		}
+		
 
 		switch(ins) {
-		case 0x01: {
-			brainpoolp256r1.genKeyPair();
-			ECPublicKey pubKey = (ECPublicKey) brainpoolp256r1.getPublic();
-			sendlen = pubKey.getW(buf, _0);
+		case 0x01:
+		case 0x02:
+			pair = brainpoolp256r1;
 			break;
-		}
-		case 0x02: {
-			signature.init(brainpoolp256r1.getPrivate(), Signature.MODE_SIGN);
-			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, (short) 0);
+		case 0x11:
+		case 0x12:
+			pair = secp256r1;
 			break;
-		}
-		case 0x11: {
-			secp256r1.genKeyPair();
-			ECPublicKey pubKey = (ECPublicKey) secp256r1.getPublic();
-			sendlen = pubKey.getW(buf, _0);
+		case 0x21:
+		case 0x22:
+			pair = brainpoolp320r1;
 			break;
-		}
-		case 0x12: {
-			signature.init(secp256r1.getPrivate(), Signature.MODE_SIGN);
-			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, (short) 0);
+		case 0x31:
+		case 0x32:
+			pair = brainpoolp256t1;
 			break;
-		}
-		case 0x21: {
-			brainpoolp320r1.genKeyPair();
-			ECPublicKey pubKey = (ECPublicKey) brainpoolp320r1.getPublic();
-			sendlen = pubKey.getW(buf, _0);
+		case 0x41:
+		case 0x42:
+			pair = secp256k1;
 			break;
-		}
-		case 0x22: {
-			signature.init(brainpoolp320r1.getPrivate(), Signature.MODE_SIGN);
-			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, (short) 0);
-			break;
-		}
-		case 0x31: {
-			brainpoolp256t1.genKeyPair();
-			ECPublicKey pubKey = (ECPublicKey) brainpoolp256t1.getPublic();
-			sendlen = pubKey.getW(buf, _0);
-			break;
-		}
-		case 0x32: {
-			signature.init(brainpoolp256t1.getPrivate(), Signature.MODE_SIGN);
-			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, (short) 0);
-			break;
-		}
 		default:
 			ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
+		}
+		if(operation == GENERATE) {
+			pair.genKeyPair();
+			ECPublicKey pubKey = (ECPublicKey) pair.getPublic();
+			sendlen = pubKey.getW(buf, _0);
+		} else if(operation == SIGN) {
+			signature.init(pair.getPrivate(), Signature.MODE_SIGN);
+			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, _0);
 		}
 		if(sendlen > 0) {
 			apdu.setOutgoingAndSend(_0, sendlen);
