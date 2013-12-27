@@ -18,12 +18,15 @@ public class YkneoCurves extends Applet {
 	KeyPair brainpoolp256r1;
 	KeyPair secp256r1;
 	KeyPair brainpoolp320r1;
+	KeyPair brainpoolp256t1;
 	Signature signature;
 
 	public YkneoCurves() {
 		brainpoolp256r1 = BrainpoolP256r1.newKeyPair();
 		secp256r1 = SecP256r1.newKeyPair();
 		brainpoolp320r1 = BrainpoolP320r1.newKeyPair();
+		brainpoolp256t1 = BrainpoolP256t1.newKeyPair();
+		
 		signature = Signature.getInstance(Signature.ALG_ECDSA_SHA, false);
 	}
 
@@ -72,6 +75,17 @@ public class YkneoCurves extends Applet {
 		}
 		case 0x22: {
 			signature.init(brainpoolp320r1.getPrivate(), Signature.MODE_SIGN);
+			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, (short) 0);
+			break;
+		}
+		case 0x31: {
+			brainpoolp256t1.genKeyPair();
+			ECPublicKey pubKey = (ECPublicKey) brainpoolp256t1.getPublic();
+			sendlen = pubKey.getW(buf, _0);
+			break;
+		}
+		case 0x32: {
+			signature.init(brainpoolp256t1.getPrivate(), Signature.MODE_SIGN);
 			sendlen = signature.sign(buf, ISO7816.OFFSET_CDATA, recvlen, buf, (short) 0);
 			break;
 		}
