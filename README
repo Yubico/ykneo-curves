@@ -2,3 +2,13 @@ ykneo-curves
 ============
 
 This is an applet demonstrating several curves for use in YubiKey NEO.
+
+Curve parameters
+----------------
+
+The curve parameters are copied from bouncycastle's java implementation.
+
+handy regexps to run the raw strings through (in vim) are:
+s/\([a-z0-9]\{2\}\)/, 0x\1/g
+followed by:
+s/0x\([8-9,a-f]\)/(byte)0x\1/g
