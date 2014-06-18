@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project name="ykneo-curves" default="convert" basedir=".">
-  <description>Ant build for ykneo-oath applet</description>
+  <description>Ant build for ykneo-curves applet</description>
   <property name="src" location="applet/src"/>
   <property name="build" location="applet/bin"/>
   <!-- Load user specified extra properties -->
