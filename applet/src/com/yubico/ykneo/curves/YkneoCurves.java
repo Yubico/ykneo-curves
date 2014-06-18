@@ -36,6 +36,7 @@ public class YkneoCurves extends Applet {
 	private KeyPair brainpoolp256t1;
 	private KeyPair secp256k1;
 	private KeyPair gost2001;
+	private KeyPair frp256v1;
 	
 	private Signature signature;
 
@@ -46,6 +47,7 @@ public class YkneoCurves extends Applet {
 		brainpoolp256t1 = BrainpoolP256t1.newKeyPair();
 		secp256k1 = SecP256k1.newKeyPair();
 		gost2001 = Gost2001.newKeyPair();
+		frp256v1 = Frp256v1.newKeyPair();
 		
 		signature = Signature.getInstance(Signature.ALG_ECDSA_SHA, false);
 	}
@@ -97,6 +99,10 @@ public class YkneoCurves extends Applet {
 		case 0x51:
 		case 0x52:
 			pair = gost2001;
+			break;
+		case 0x61:
+		case 0x62:
+			pair = frp256v1;
 			break;
 		default:
 			ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
