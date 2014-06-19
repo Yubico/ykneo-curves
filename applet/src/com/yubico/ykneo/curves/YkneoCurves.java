@@ -72,36 +72,30 @@ public class YkneoCurves extends Applet {
 			operation = GENERATE;
 		} else if((ins & 0x0f) == 0x02) {
 			operation = SIGN;
+		} else {
+			ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
 		}
-		
 
-		switch(ins) {
-		case 0x01:
-		case 0x02:
+		switch(ins & 0xf0) {
+		case 0x00:
 			pair = brainpoolp256r1;
 			break;
-		case 0x11:
-		case 0x12:
+		case 0x10:
 			pair = secp256r1;
 			break;
-		case 0x21:
-		case 0x22:
+		case 0x20:
 			pair = brainpoolp320r1;
 			break;
-		case 0x31:
-		case 0x32:
+		case 0x30:
 			pair = brainpoolp256t1;
 			break;
-		case 0x41:
-		case 0x42:
+		case 0x40:
 			pair = secp256k1;
 			break;
-		case 0x51:
-		case 0x52:
+		case 0x50:
 			pair = gost2001;
 			break;
-		case 0x61:
-		case 0x62:
+		case 0x60:
 			pair = frp256v1;
 			break;
 		default:
